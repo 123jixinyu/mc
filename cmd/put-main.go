@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -107,7 +108,9 @@ func mainPut(cliCtx *cli.Context) (e error) {
 	}
 	// get source and target
 	sourceURLs := args[:len(args)-1]
-	targetURL := args[len(args)-1]
+	targetURL := getFullPath(args[len(args)-1])
+
+	fmt.Println(targetURL)
 
 	putURLsCh := make(chan URLs, 10000)
 	var totalObjects, totalBytes int64

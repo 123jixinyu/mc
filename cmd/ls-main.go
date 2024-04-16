@@ -214,6 +214,7 @@ func mainList(cliCtx *cli.Context) error {
 
 	var cErr error
 	for _, targetURL := range args {
+		targetURL = getFullPath(targetURL)
 		clnt, err := newClient(targetURL)
 		fatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
 		if !strings.HasSuffix(targetURL, string(clnt.GetURL().Separator)) {

@@ -38,7 +38,6 @@ import (
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v2/console"
-	"github.com/minio/pkg/v2/env"
 	"github.com/minio/pkg/v2/trie"
 	"github.com/minio/pkg/v2/words"
 	"golang.org/x/term"
@@ -78,10 +77,6 @@ LICENSE:
 `
 
 func init() {
-	if env.IsSet(mcEnvConfigFile) {
-		configFile := env.Get(mcEnvConfigFile, "")
-		fatalIf(readAliasesFromFile(configFile).Trace(configFile), "Unable to parse "+configFile)
-	}
 	if runtime.GOOS == "windows" {
 		if mousetrap.StartedByExplorer() {
 			fmt.Printf("Don't double-click %s\n", os.Args[0])
@@ -90,6 +85,14 @@ func init() {
 			fmt.Scanln()
 			os.Exit(1)
 		}
+	}
+	auth := getAuth()
+	aliasToConfigMap[AuthAlias] = &aliasConfigV10{
+		URL:          auth.Endpoint,
+		API:          "S3v4",
+		AccessKey:    auth.AccessKey,
+		SecretKey:    auth.SecretKey,
+		SessionToken: auth.SessionToken,
 	}
 }
 
@@ -463,6 +466,7 @@ var appCmds = []cli.Command{
 	updateCmd,
 	versionCmd,
 	watchCmd,
+	authCmd,
 }
 
 func printMCVersion(c *cli.Context) {
